@@ -10,7 +10,7 @@
 # include <string.h>
 
 # define WIDTH 600
-# define HEIGHT 600
+# define HEIGHT 1400
 # define PI 3.1415926535
 # define PI2 PI/2
 # define PI3 3*PI/2
@@ -19,6 +19,7 @@
 # define BLUE 0x000000FF
 # define GREEN 0x0000FF00
 # define WHITE 0xFFFFFFFF
+# define GREY 0x00808080
 # define ESC 65307
 # define W 119
 # define A 97

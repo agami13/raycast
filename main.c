@@ -17,10 +17,11 @@ char map[] =
 	1, 1, 1, 1, 1, 1, 1, 1,
 };
 
-float dist(float ax, float ay, float bx, float by, float angle)
+float dist(float ax, float ay, float bx, float by)
 {
-    return (sqrt(bx - ax) * (bx - ax) + (by - ay) * (by - ay));
+    return sqrt(pow(bx - ax, 2) + pow(by - ay, 2));
 }
+
 
 void draw_line(float xpos, float ypos, float rx, float ry, int color)
 {
@@ -40,14 +41,46 @@ void draw_line(float xpos, float ypos, float rx, float ry, int color)
     }
 }
 
+void draw_3D(float disT, int r)
+{
+    int wall_color = RED;
+    int ceiling_color = 0x87CEEB; // Sky blue for ceiling
+    int floor_color = 0x8B4513; // Brown for floor
+
+    float lineH = (mapS * 500) / disT;  // 500 is the height of the view
+    if (lineH > 500) { lineH = 500; }  // Cap it to screen height
+
+    int lineO = (500 / 2) - (lineH / 2); // Top of the wall
+    int lineEnd = (500 / 2) + (lineH / 2); // Bottom of the wall
+
+    int x_offset = 600;  // Right of the 2D map
+
+    // Draw the ceiling
+    for (int y = 0; y < lineO; y++) {
+        ft_put_pixel(&data, r + x_offset, y, ceiling_color);
+    }
+
+    // Draw the wall
+    for (int y = lineO; y < lineEnd; y++) {
+        ft_put_pixel(&data, r + x_offset, y, wall_color);
+    }
+
+    // Draw the floor
+    for (int y = lineEnd; y < 500; y++) {
+        ft_put_pixel(&data, r + x_offset, y, floor_color);
+    }
+}
+
+
+
 
 void	draw_laser()
 {
     int r, mx, my, mp, dof;
-    float rx, ry, ra, xo, yo;
+    float rx, ry, ra, xo, yo, disT;
     t_palyer *player = data.player;
 
-    ra = player->pa - RD * 30;
+    ra = player->pa - (RD * 30);
     if (ra < 0) { ra += 2 * PI;}
     if (ra > 2*PI) { ra -= 2 * PI;}
     for (r = 0; r < 60; r++) {
@@ -78,7 +111,7 @@ void	draw_laser()
             mx = (int)(rx) / 64;
             my = (int)(ry) / 64;
             if (mx < 0 || mx >= mapX || my < 0 || my >= mapY) {
-                hx = rx; hy = ry; disH = dist(player->xpos, player->ypos, hx, hy, ra);
+                hx = rx; hy = ry; disH = dist(player->xpos, player->ypos, hx, hy);
                 dof = 8;
                 break;
             }
@@ -86,7 +119,7 @@ void	draw_laser()
             if (map > 0 && map[mp] == 1) {
                 hx = rx;
                 hy = ry;
-                disH = dist(player->xpos, player->ypos, hx, hy, ra);
+                disH = dist(player->xpos, player->ypos, hx, hy);
                 dof = 8;
             } else {
                 rx += xo;
@@ -94,10 +127,11 @@ void	draw_laser()
                 dof++;
             }
         }
+
 //////////////////////////// vertical lines ////////////////////////////////////
 
         dof = 0;
-        float disV = 10000000, vx = player->xpos, vy = player->ypos;
+        float disV = 1000000, vx = player->xpos, vy = player->ypos;
         float nTan;
         if (ra == 0 || ra == PI) {
             nTan = 0;
@@ -130,8 +164,7 @@ void	draw_laser()
             if (map > 0 && map[mp] == 1) {
                 vx = rx;
                 vy = ry;
-                disV = dist(player->xpos, player->ypos, vx, vy, ra);
-                break;
+                disV = dist(player->xpos, player->ypos, vx, vy);
                 dof = 8;
             } else {
                 rx += xo;
@@ -139,9 +172,11 @@ void	draw_laser()
                 dof++;
             }
         }
-        if (disV < disH) { rx = vx; ry = vy;}
-        if (disH < disV) { rx = hx; ry = hy;}
-        draw_line(player->xpos + 5, player->ypos + 5, rx, ry, RED);
+        if (disV < disH) { rx = vx; ry = vy; disT = disV;}
+        if (disH < disV) { rx = hx; ry = hy; disT = disH;}
+        draw_line(player->xpos + 5, player->ypos + 5, rx, ry, GREY);
+        // ---- 3D start ---- //
+        draw_3D(disT, r);
         ra += RD;
         if (ra < 0) { ra += 2 * PI;}
         if (ra > 2*PI) { ra -= 2 * PI;}
@@ -241,7 +276,7 @@ int	draw_player(t_palyer *player)
 		for (int j = 0; j < 10; j++)
 			ft_put_pixel(&data, player->xpos + i, player->ypos + j, GREEN);
 	}
-	draw_rotation_line(player);
+	// draw_rotation_line(player);
 	mlx_put_image_to_window(data.mlx, data.win, data.img, 0, 0);
     return 0;
 }
@@ -261,7 +296,7 @@ int main()
 	data.img = mlx_new_image(data.mlx, WIDTH, HEIGHT);
 	data.addr = mlx_get_data_addr(data.img, &data.bits_per_pixel, &data.line_length,
 								&data.endian);
-	player->xpos = 72;
+    player->xpos = 72;
 	player->ypos = 72;
 	player->delta_x = cos(player->pa) * 5;
 	player->delta_y = sin(player->pa) * 5;
@@ -270,4 +305,5 @@ int main()
 	// mlx_key_hook(data.win, key_hook, &data);
 	mlx_hook(data.win, 2, 1L << 0, key_hook, &data);
 	mlx_loop(data.mlx);
+    return 0;
 }
