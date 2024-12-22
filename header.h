@@ -9,9 +9,12 @@
 # include <limits.h>
 # include <string.h>
 
-# define WIDTH 800
-# define HEIGHT 800
+# define WIDTH 600
+# define HEIGHT 600
 # define PI 3.1415926535
+# define PI2 PI/2
+# define PI3 3*PI/2
+# define RD 0.0174533
 # define RED 0x00FF0000
 # define BLUE 0x000000FF
 # define GREEN 0x0000FF00
@@ -42,5 +45,10 @@ typedef struct	s_data {
 }				t_data;
 
 void	ft_put_pixel(t_data *data, int x, int y, int color);
+int	draw_player(t_palyer *player);
+int draw_rotation_line(t_palyer *player);
+int	draw_map();
+int	key_hook(int key, t_data *data);
+void	draw_laser();
 
 #endif
