@@ -43,33 +43,39 @@ void draw_line(float xpos, float ypos, float rx, float ry, int color)
 
 void draw_3D(float disT, int r)
 {
+    int screen_width = 300;   // Width of the rendering window
+    int screen_height = 300; // Height of the rendering window
+    int x_offset = 512 + 650; // Offset for placing the rendered map next to the 2D map
+
     int wall_color = RED;
     int ceiling_color = 0x87CEEB; // Sky blue for ceiling
-    int floor_color = 0x8B4513; // Brown for floor
+    int floor_color = 0x8B4513;   // Brown for floor
 
-    float lineH = (mapS * 500) / disT;  // 500 is the height of the view
-    if (lineH > 500) { lineH = 500; }  // Cap it to screen height
+    // Render the map with the offset
+    float lineH = (mapS * screen_height) / disT; // Calculate line height relative to the screen
+    if (lineH > screen_height) { 
+        lineH = screen_height;  // Cap it to screen height
+    }
 
-    int lineO = (500 / 2) - (lineH / 2); // Top of the wall
-    int lineEnd = (500 / 2) + (lineH / 2); // Bottom of the wall
-
-    int x_offset = 600;  // Right of the 2D map
+    int lineO = (screen_height / 2) - (lineH / 2); // Top of the wall
+    int lineEnd = (screen_height / 2) + (lineH / 2); // Bottom of the wall
 
     // Draw the ceiling
     for (int y = 0; y < lineO; y++) {
-        ft_put_pixel(&data, r + x_offset, y, ceiling_color);
+        ft_put_pixel(&data, r + x_offset, y, ceiling_color); // Apply x_offset
     }
 
     // Draw the wall
     for (int y = lineO; y < lineEnd; y++) {
-        ft_put_pixel(&data, r + x_offset, y, wall_color);
+        ft_put_pixel(&data, r + x_offset, y, wall_color); // Apply x_offset
     }
 
     // Draw the floor
-    for (int y = lineEnd; y < 500; y++) {
-        ft_put_pixel(&data, r + x_offset, y, floor_color);
+    for (int y = lineEnd; y < screen_height; y++) {
+        ft_put_pixel(&data, r + x_offset, y, floor_color); // Apply x_offset
     }
 }
+
 
 
 
@@ -116,7 +122,7 @@ void	draw_laser()
                 break;
             }
             mp = my * mapX + mx;
-            if (map > 0 && map[mp] == 1) {
+            if (map[mp] == 1) {
                 hx = rx;
                 hy = ry;
                 disH = dist(player->xpos, player->ypos, hx, hy);
@@ -161,7 +167,7 @@ void	draw_laser()
                 break;
             }
             mp = my * mapX + mx;
-            if (map > 0 && map[mp] == 1) {
+            if (map[mp] == 1) {
                 vx = rx;
                 vy = ry;
                 disV = dist(player->xpos, player->ypos, vx, vy);
