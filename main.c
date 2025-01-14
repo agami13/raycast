@@ -1,20 +1,24 @@
 #include "header.h"
 
 t_data	data;
-int mapX = 8; 
-int mapY = 8;
+int mapX = 12; 
+int mapY = 12;
 int mapS = 64;
 
 char map[] = 
 {
-	1, 1, 1, 1, 1, 1, 1, 1,
-	1, 0, 0, 1, 0, 0, 0, 1,
-	1, 0, 0, 1, 0, 0, 0, 1,
-	1, 0, 0, 1, 1, 1, 0, 1,
-	1, 0, 0, 0, 0, 0, 0, 1,
-	1, 0, 0, 0, 0, 1, 0, 1,
-	1, 0, 0, 0, 0, 0, 0, 1,
-	1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 };
 
 float dist(float ax, float ay, float bx, float by)
@@ -43,15 +47,19 @@ void draw_line(float xpos, float ypos, float rx, float ry, int color)
 
 void draw_3D(float disT, int r)
 {
-    int screen_width = 300;   // Width of the rendering window
-    int screen_height = 300; // Height of the rendering window
-    int x_offset = 512 + 650; // Offset for placing the rendered map next to the 2D map
+    int screen_width = 800;   // Width of the rendering window
+    int screen_height = 800; // Height of the rendering window
 
-    int wall_color = RED;
-    int ceiling_color = 0x87CEEB; // Sky blue for ceiling
-    int floor_color = 0x8B4513;   // Brown for floor
+int map_width = mapX * mapS; // 512 pixels
+int x_offset = 800; // Offset for the rendered map: 512 (map width) + 650 (gap)
 
-    // Render the map with the offset
+int wall_color = BLUE;
+int ceiling_color = 0x87CEEB; // Sky blue for ceiling
+int floor_color = 0x8B4513;   // Brown for floor
+
+// Render the map with the calculated offset
+// for (int r = 0; r < screen_width; r++)
+// {
     float lineH = (mapS * screen_height) / disT; // Calculate line height relative to the screen
     if (lineH > screen_height) { 
         lineH = screen_height;  // Cap it to screen height
@@ -60,20 +68,23 @@ void draw_3D(float disT, int r)
     int lineO = (screen_height / 2) - (lineH / 2); // Top of the wall
     int lineEnd = (screen_height / 2) + (lineH / 2); // Bottom of the wall
 
-    // Draw the ceiling
-    for (int y = 0; y < lineO; y++) {
-        ft_put_pixel(&data, r + x_offset, y, ceiling_color); // Apply x_offset
-    }
+    if (x_offset >= 0 && r + x_offset < WIDTH) {
+        // Draw the ceiling
+        for (int y = 0; y < lineO; y++) {
+            ft_put_pixel(&data, r + x_offset, y, ceiling_color); // Apply x_offset
+            }
 
-    // Draw the wall
-    for (int y = lineO; y < lineEnd; y++) {
-        ft_put_pixel(&data, r + x_offset, y, wall_color); // Apply x_offset
-    }
+         // Draw the wall
+        for (int y = lineO; y < lineEnd; y++) {
+             ft_put_pixel(&data, r + x_offset, y, wall_color); // Apply x_offset
+        }
 
-    // Draw the floor
-    for (int y = lineEnd; y < screen_height; y++) {
-        ft_put_pixel(&data, r + x_offset, y, floor_color); // Apply x_offset
-    }
+        // Draw the floor
+        for (int y = lineEnd; y < screen_height; y++) {
+            ft_put_pixel(&data, r + x_offset, y, floor_color); // Apply x_offset
+        }
+    // }
+}
 }
 
 
@@ -122,7 +133,7 @@ void	draw_laser()
                 break;
             }
             mp = my * mapX + mx;
-            if (map[mp] == 1) {
+            if (mp >= 0 && mp < mapX * mapY && map[mp] == 1) {
                 hx = rx;
                 hy = ry;
                 disH = dist(player->xpos, player->ypos, hx, hy);
@@ -167,7 +178,7 @@ void	draw_laser()
                 break;
             }
             mp = my * mapX + mx;
-            if (map[mp] == 1) {
+            if (mp >= 0 && mp < mapX * mapY && map[mp] == 1) {
                 vx = rx;
                 vy = ry;
                 disV = dist(player->xpos, player->ypos, vx, vy);
@@ -289,8 +300,10 @@ int	draw_player(t_palyer *player)
 
 void	ft_put_pixel(t_data *data, int x, int y, int color)
 {
-	char	*where_to_put = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
-	*(unsigned int *)where_to_put = color;
+	if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) {
+		char *where_to_put = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
+		*(unsigned int *)where_to_put = color;
+	}
 }
 
 int main()
@@ -298,10 +311,11 @@ int main()
 	t_palyer *player = malloc(sizeof(t_palyer));
 	data.player = player;
 	data.mlx = mlx_init();
-	data.win = mlx_new_window(data.mlx, HEIGHT, WIDTH, "boom");
+	data.win = mlx_new_window(data.mlx, WIDTH, HEIGHT, "boom");
 	data.img = mlx_new_image(data.mlx, WIDTH, HEIGHT);
 	data.addr = mlx_get_data_addr(data.img, &data.bits_per_pixel, &data.line_length,
 								&data.endian);
+    player->pa = 0;
     player->xpos = 72;
 	player->ypos = 72;
 	player->delta_x = cos(player->pa) * 5;

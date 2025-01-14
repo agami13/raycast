@@ -9,8 +9,8 @@
 # include <limits.h>
 # include <string.h>
 
-# define WIDTH 600
-# define HEIGHT 1400
+# define WIDTH 1920
+# define HEIGHT 1080
 # define PI 3.1415926535
 # define PI2 PI/2
 # define PI3 3*PI/2
